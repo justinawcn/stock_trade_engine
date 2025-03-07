@@ -1,4 +1,5 @@
-from enum import enum
+from enum import Enum
+from typing import Union
 
 class Order:
     def __init__(self, OrderType, TickerSymbol, Qty, Price):
@@ -11,7 +12,7 @@ class Order:
 
 
 
-class OrderType(enum):
+class OrderType(Enum):
     BUY = True
     SELL = False
 
@@ -42,17 +43,27 @@ class OrderBook():
         self.sellOrders = None # ascending order
 
 
-    def addOrder(self, orderType: String, tickerSymbol: TickerType, qty: Int, price: Float) {
+    def addOrder(self, orderType: str, tickerSymbol: TickerType, qty: int, price: float):
         added_order = Order(orderType, tickerSymbol, qty, price)
 
         if orderType == "BUY":
-            
             if self.buyOrders is None:
                 self.buyOrders = added_order
             else:
                 # traversing the buy list and store in a descending order
+
+                # adding to the head 
+                if added_order.Price > self.buyOrders.Price:
+                    self.buyOrders.prev = added_order
+                    added_order.next = self.buyOrders
+                    self.buyOrders = added_order
+                    return
+                
                 ptr = self.buyOrders
-                while (ptr.price > added_order.price):
+                previous_order = self.buyOrders
+                while (ptr.Price > added_order.Price):
+                    if ptr.next is None:
+                        break
                     previous_order = ptr
                     ptr = ptr.next
                 # current order price is no longer greater than the order to be added
@@ -60,19 +71,41 @@ class OrderBook():
                 previous_order.next = added_order
                 added_order.next = ptr
                 ptr.prev = added_order
+        elif orderType == "SELL":
+            if self.sellOrders is None:
+                self.sellOrders = added_order
+            else:
+                # traversing the sell list and store in a ascending order
 
-    }
+                # adding to the head
+                if added_order.Price < self.sellOrders.Price:
+                    self.sellOrders.prev = added_order
+                    added_order.next = self.sellOrders
+                    self.sellOrders = added_order
+                    return 
+                
+                ptr = self.sellOrders
+                previous_order = self.sellOrders
+                while (ptr.Price < added_order.Price):
+                    if ptr.next is None:
+                        break
+                    previous_order = ptr
+                    ptr = ptr.next
+                previous_order.next = added_order
+                added_order.next = ptr
+                ptr.prev = added_order
+        else:
+            raise ValueError("incorrect orderType, neither BUY nor SELL")
 
-    def matchOrder(self, TickerSymbol) { 
-        # O(n)
 
-    }
+    # def matchOrder(self, tickerSymbol):
+    #     # O(n)
 
-def stimulator() {
 
-}
+# def stimulator() {
 
-def main() {
+# }
+
+if __name__ == '__main__':
     print("market starts...")
-    stockMarket = new OrderBook
-}
+    stockMarket = OrderBook()
